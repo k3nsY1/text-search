@@ -33,14 +33,22 @@ func main() {
 			if scanner.Bytes()[i] >= 65 && scanner.Bytes()[i] <= 90 {
 				scanner.Bytes()[i] = scanner.Bytes()[i] + 32
 				words = append(words, scanner.Bytes())
-			} else if scanner.Bytes()[i] == 32 || scanner.Bytes()[i] == 42 {
-				scanner.Bytes()[i] = 0
-				words = append(words, scanner.Bytes())
 			} else {
 				words = append(words, scanner.Bytes())
 			}
+			// if scanner.Bytes()[i] == 32 {
+			// 	scanner.Bytes()[i] = 0
+			// 	words = append(words, scanner.Bytes())
+			// } else if scanner.Bytes()[i] == 42 {
+			// 	scanner.Bytes()[i] = 0
+			// 	words = append(words, scanner.Bytes())
+			// } else if scanner.Bytes()[0] == 32 {
+			// 	scanner.Bytes()[i] = 0
+			// 	words = append(words, scanner.Bytes())
+			// }
+
+			// fmt.Println(scanner.Text())
 		}
-		// fmt.Println(scanner.Text())
 	}
 	// for i := 0; i < len(words); i++ {
 	// 	fmt.Println(words[i])
@@ -77,7 +85,7 @@ func main() {
 	}
 	// Выводим 20 элементов
 	for i := 0; i < len(first); i++ {
-		fmt.Println(string(first[i]), second[i])
+		fmt.Println(first[i], string(first[i]), second[i])
 		if i == 19 {
 			break
 		}
