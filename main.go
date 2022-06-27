@@ -5,11 +5,10 @@ import (
 	"bytes"
 	"fmt"
 	"os"
-	"unicode"
 )
 
 func main() {
-
+	// Открываем файл для чтения
 	file, err := os.Open("mobydick.txt")
 	if err != nil {
 		fmt.Println(err)
@@ -17,77 +16,62 @@ func main() {
 	}
 	defer file.Close()
 
-	var words [][]rune
-	var word []rune
-	var endword bool
-	s := bufio.NewScanner(file)
-	for s.Scan() {
-		for _, r := range bytes.Runes(s.Bytes()) {
-			if r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z' && !endword {
-				word = append(word, unicode.ToLower(r))
-			}
-			if unicode.IsSpace(r) {
-				endword = true
-			}
-			if endword {
-				words = append(words, word)
-				word = nil
-				endword = false
+	var words [][]byte
+	var word []byte
+	scanner := bufio.NewScanner(file)
+	scanner.Split(bufio.ScanWords)
+
+	for scanner.Scan() {
+		// Запись слов в нижний регистр и избавление от знаков
+		if word != nil {
+			words = append(words, bytes.ToLower(word))
+			word = nil
+		}
+		// fmt.Println(scanner.Text())
+		for i := 0; i < len(scanner.Bytes()); i++ {
+			if scanner.Bytes()[i] >= 'a' && scanner.Bytes()[i] <= 'z' || scanner.Bytes()[i] >= 'A' && scanner.Bytes()[i] <= 'Z' {
+				word = append(word, scanner.Bytes()[i])
 			}
 		}
-
 	}
+	// for _, v := range words {
+	// 	fmt.Println(string(v))
+	// }
 
-	var first [][]rune
-	var second []int
-	// // Пробегаемся по циклу и если words не нулевой, то сравниваем два элемента, первый со следующим
+	var uniq [][]byte
+	var count []int
+	// Пробегаемся по циклу и если words не нулевой, то сравниваем два элемента, первый со следующим
 	for i := 0; i < len(words); i++ {
 		if words[i] != nil {
 			var cnt = 1
 			for j := i + 1; j < len(words); j++ {
-
-				res := compare(words[i], words[j]) //Compare(words[i], words[j])
+				res := bytes.Compare(words[i], words[j])
 				// Если равны, то добавляем в счетчик и удаляем элемент
-				if res == true {
+				if res == 0 {
 					cnt++
 					words[j] = nil
 				}
 			}
 			// В первый добавляем слово
-			first = append(first, words[i])
+			uniq = append(uniq, words[i])
 			// Во второй количество
-			second = append(second, cnt)
+			count = append(count, cnt)
 		}
 	}
-	// // Сортируем массивы по количеству
-	for i := 0; i < len(first); i++ {
-		for j := i + 1; j < len(first); j++ {
-			if second[i] < second[j] {
-				second[i], second[j] = second[j], second[i]
-				first[i], first[j] = first[j], first[i]
+	// Сортируем массивы по количеству
+	for i := 0; i < len(uniq); i++ {
+		for j := i + 1; j < len(uniq); j++ {
+			if count[i] < count[j] {
+				count[i], count[j] = count[j], count[i]
+				uniq[i], uniq[j] = uniq[j], uniq[i]
 			}
 		}
 	}
-	// // Выводим 20 элементов
-	for i := 0; i < len(first); i++ {
-		fmt.Println(first[i], string(first[i]), second[i])
+	// Выводим 20 элементов
+	for i := 0; i < len(uniq); i++ {
+		fmt.Println(string(uniq[i]), count[i])
 		if i == 19 {
 			break
 		}
 	}
-
-}
-
-func compare(a []rune, b []rune) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for _, v := range a {
-		for _, c := range b {
-			if v != c {
-				return false
-			}
-		}
-	}
-	return true
 }
